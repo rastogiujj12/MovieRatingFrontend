@@ -309,6 +309,7 @@ export default {
 }
 table {
     width: -webkit-fill-available;
+    text-align: left;
 }
 .add-btn{
     position: fixed;

@@ -2,7 +2,8 @@ import axios from 'axios'
 
 console.log("axios service", this)
 
-const endpoint = "http://localhost:3000/api"
+// const endpoint = "http://localhost:3000/api"
+const endpoint = "https://movie-rating-backend.herokuapp.com/api"
 
 let headers = {
     Authorization:''

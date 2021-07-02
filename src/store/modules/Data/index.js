@@ -7,6 +7,7 @@ const state = {
     genre:[],
     director:[],
     movieCount:0,
+    isLoading:false,
 };
 
 const getters = {
@@ -21,6 +22,9 @@ const getters = {
     },
     getMovieCount(state){
         return state.movieCount;
+    },
+    isLoading(state){
+        return state.isLoading;
     }
 }
 
@@ -36,12 +40,17 @@ const mutations = {
     },
     setMovieCount(state, count){
         return state.movieCount = count;
+    },
+    setIsLoading(state, value){
+        return state.isLoading = value;
     }
 }
 
 const actions = {
     getMovies({commit}, req){
+        commit("setIsLoading", true)
         AxiosService.get('/movie/get', req).then(({error, data, msg, success})=>{
+            commit("setIsLoading", false)
             if(error) {
                 Toast.open({
                     duration: 5000,

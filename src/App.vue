@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <b-loading :is-full-page="true" v-model="isLoading" :can-cancel="false"></b-loading>
     <router-view/>
   </div>
 </template>
@@ -9,6 +10,11 @@ export default {
   name: 'App',
   created() {
     this.$store.dispatch('autoLogin');
+  },
+  computed:{
+    isLoading(){
+      return this.$store.getters.isLoading || false;
+    }
   }
 }
 </script>
