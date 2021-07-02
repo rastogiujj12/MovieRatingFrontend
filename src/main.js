@@ -5,7 +5,13 @@ import App from './App'
 import router from './router';
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
+import VueSwal from 'vue-swal'
+import store from './store'
+import Paginate from 'vuejs-paginate'
 
+Vue.component('paginate', Paginate)
+
+Vue.use(VueSwal)
 Vue.use(Buefy)
 Vue.config.productionTip = false
 
@@ -14,6 +20,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

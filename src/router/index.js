@@ -6,12 +6,21 @@ import HomePage from '@/components/HomePage'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'HomePage',
-      component: HomePage
-    }
-  ]
-})
+const routes = [
+  {
+    path: '/home',
+    name: 'HomePage',
+    component: HomePage
+  }
+]
+
+const router = new Router({
+  routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  if(to.path!=='/home') next({path: "/home"});
+  else next();
+});
+
+export default router;
