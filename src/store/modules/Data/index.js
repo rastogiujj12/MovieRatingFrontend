@@ -40,8 +40,8 @@ const mutations = {
 }
 
 const actions = {
-    getMovies({commit}){
-        AxiosService.get('/movie/get').then(({error, data, msg, success})=>{
+    getMovies({commit}, req){
+        AxiosService.get('/movie/get', req).then(({error, data, msg, success})=>{
             if(error) {
                 Toast.open({
                     duration: 5000,

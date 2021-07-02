@@ -50,10 +50,10 @@ const deleteMethod = (url, req)=>{
     })
 }
 
-const get = (url)=>{
+const get = (url, req)=>{
     // console.log("headers", headers);
     return new Promise((resolve, reject)=>{
-        axios.get(`${endpoint}${url}`, {headers})
+        axios.get(`${endpoint}${url}`, {headers, params:req})
         .then( res=>{
             // console.log("axios get", res);
             resolve(res.data);

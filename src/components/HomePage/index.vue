@@ -8,9 +8,9 @@
             </div>
             <div class="search">
                 <b-field>
-                    <b-input type="string" v-model="search" placeholder="Search movie or director" expanded></b-input>
+                    <b-input type="string" v-model="query" placeholder="Search movie or director" expanded></b-input>
                     <b-taginput
-                        v-model="genre"
+                        v-model="searchGenre"
                         :data="filteredTags"
                         autocomplete
                         :allow-new="false"
@@ -20,18 +20,47 @@
                         placeholder="Genre"
                         @typing="getFilteredTags">
                     </b-taginput>
-                    <b-button icon-pack="fa" type="is-info" icon-left="search" @click="editBtnClick(row)"/>
+                    <b-button icon-pack="fa" type="is-info" icon-left="search" @click="search()"/>
                 </b-field>
             </div>
             <table class="table">
                 <thead>
                     <tr>
-                        <th class=""><div class="th-wrap">Name</div></th>
-                        <th class=""><div class="th-wrap">Director</div></th>
+                        <th class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" :icon-right="nameSortIcon" @click="toggleSort('NAME')">Name</b-button>
+                            </div>
+                        </th>
+                        <th class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" :icon-right="directorSortIcon" @click="toggleSort('DIRECTOR')">Director</b-button>
+                            </div>
+                        </th>
+                        <th class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" :icon-right="imdbSortIcon" @click="toggleSort('IMDB')">IMDb</b-button>
+                            </div>
+                        </th>
+                        <th class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" :icon-right="popularity99SortIcon" @click="toggleSort('POPULARITY99')">99Popularity</b-button>
+                            </div>
+                        </th>
+                        <th class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" >Genre</b-button>
+                            </div>
+                        </th>
+                        <th v-if="isAuthenticated" class="">
+                            <div class="th-wrap">
+                                <b-button icon-pack="fa" >Action</b-button>
+                            </div>
+                        </th>
+                        <!-- <th class=""><div class="th-wrap">Director</div></th>
                         <th class=""><div class="th-wrap">IMDb</div></th>
                         <th class=""><div class="th-wrap">99Popularity</div></th>
                         <th class=""><div class="th-wrap">genre</div></th>
-                        <th v-if="isAuthenticated" class=""><div class="th-wrap">Action</div></th>
+                        <th v-if="isAuthenticated" class=""><div class="th-wrap">Action</div></th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -61,15 +90,6 @@
                 aria-page-label="Page"
                 aria-current-label="Current page">
             </b-pagination>
-            <!-- <div class="pagination-section">
-                <paginate
-                    :page-count="20"
-                    :click-handler="paginationHandler"
-                    :prev-text="'Prev'"
-                    :next-text="'Next'"
-                    :containerClass="'pagination'">
-                </paginate>
-            </div> -->
         </div>
         <div v-if="isAuthenticated" class="add-btn">
             <b-button
@@ -92,13 +112,25 @@ import Login from '../Login.vue'
 
 export default {
     data(){
-        return{
-            id:"asdasd",
-            search:null,
+        return{           
+            query:null,
+            searchGenre:null,
+
             filteredTags:this.genreList,
             genre:[],
             pageSize : 10,
             page:1,
+
+            defaultSortIcon:"sort",
+            sortAscIcon:"sort-up",
+            sortDscIcon:"sort-down",
+            
+            nameSortIcon:null,
+            directorSortIcon:null,
+            imdbSortIcon:null,
+            popularity99SortIcon:null,
+            currentSortCol:null,
+            sortDirection:null,
         }
     },
     mounted(){
@@ -106,8 +138,9 @@ export default {
     },
     methods:{
         init(){
-            this.$store.dispatch("getMovies")
-            this.$store.dispatch("getGenre")
+            this.$store.dispatch("getMovies");
+            this.$store.dispatch("getGenre");
+            this.setSorting();
         },
         formatGenre(arr){
             let genreArr = [];
@@ -173,8 +206,73 @@ export default {
                     .indexOf(text.toLowerCase()) >= 0
             })
         },
-        paginationHandler(page){
-            console.log("pagination handler called", page)
+        paginationHandler(){
+            // console.log("asd", page)
+            this.$router.push({ path: '/home', query: { ...this.$route.query, page:this.page}})
+            this.getMovies()
+        },
+        toggleSort(col){
+            switch(col){
+                case 'NAME':
+                    if(this.currentSortCol === 'name') this.sortDirection = this.sortDirection*-1;
+                    else{
+                        this.currentSortCol = 'name'
+                        this.sortDirection  = -1;
+                        this.setSorting();
+                    }
+                    this.nameSortIcon = this.sortDirection===1 ? this.sortAscIcon : this.sortDscIcon;
+
+                    break;
+                case 'DIRECTOR':
+                    if(this.currentSortCol === 'director') this.sortDirection = this.sortDirection*-1;
+                    else{
+                        this.currentSortCol = 'director'
+                        this.sortDirection  = -1;
+                        this.setSorting();
+                    }
+                    this.directorSortIcon = this.sortDirection===1 ? this.sortAscIcon : this.sortDscIcon;
+                    break;
+                case 'IMDB':
+                    if(this.currentSortCol === 'imdbScore') this.sortDirection = this.sortDirection*-1;
+                    else{
+                        this.currentSortCol = 'imdbScore'
+                        this.sortDirection  = -1;
+                        this.setSorting();
+                    }
+                    this.imdbSortIcon = this.sortDirection===1 ? this.sortAscIcon : this.sortDscIcon;
+                    break;
+                case 'POPULARITY99':
+                    if(this.currentSortCol === 'popularity99') this.sortDirection = this.sortDirection*-1;
+                    else{
+                        this.currentSortCol = 'popularity99'
+                        this.sortDirection  = -1;
+                        this.setSorting();
+                    }
+                    this.popularity99SortIcon = this.sortDirection===1 ? this.sortAscIcon : this.sortDscIcon;
+                    break;
+                default:
+                    this.setSorting();
+                    this.currentSortCol=null;
+                    this.sortDirection=-1;
+            }
+            this.$router.push({ path: '/home', query: { ...this.$route.query, sortBy:this.currentSortCol, asc:this.sortDirection, page:1}})
+            this.getMovies()
+        },
+        setSorting(){
+            this.nameSortIcon      = this.defaultSortIcon;
+            this.directorSortIcon  = this.defaultSortIcon;
+            this.imdbSortIcon      = this.defaultSortIcon;
+            this.popularity99SortIcon  = this.defaultSortIcon;
+        },
+        search(){
+            let genreList = []
+            if(this.searchGenre) this.searchGenre.forEach(el=>genreList.push(el._id));
+            console.log("genrList", genreList)
+            this.$router.push({ path: '/home', query: { search:this.query, genre:genreList, page:1 }})
+            this.getMovies()
+        },
+        getMovies(){
+            this.$store.dispatch("getMovies", this.$route.query)
         }
     },
     computed:{
@@ -189,6 +287,11 @@ export default {
         },
         totalCount(){
             return this.$store.getters.getMovieCount || 0;
+        }
+    },
+    watch:{
+        page(){
+            this.paginationHandler()
         }
     }
 }
