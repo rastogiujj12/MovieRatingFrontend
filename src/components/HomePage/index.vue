@@ -13,7 +13,7 @@
                         v-model="genre"
                         :data="filteredTags"
                         autocomplete
-                        :allow-new="true"
+                        :allow-new="false"
                         :open-on-focus="true"
                         field="name"
                         icon="label"
@@ -74,6 +74,7 @@
         <div v-if="isAuthenticated" class="add-btn">
             <b-button
                 icon-pack="fas" 
+                type="is-info"
                 size="is-medium"
                 icon-right="plus-circle"
                 @click = "addMovie"
